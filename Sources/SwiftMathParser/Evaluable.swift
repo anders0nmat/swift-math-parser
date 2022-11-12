@@ -1,0 +1,183 @@
+
+public protocol Evaluable {
+	var node: EvaluableTreeNode! { get set }
+	var nodeType: EvaluableType { get }
+
+	var internalName: String { get }
+
+	var argumentName: NameFunc { get }
+
+	func evaluate() throws -> ExpressionResult
+	func getVariable(_ name: String) -> EvaluableTreeNode?
+
+	// func willAdd(_ node: EvaluableTreeNode) -> (toInsert: [EvaluableTreeNode], toContinue: EvaluableTreeNode?)?
+
+	// func nextArg(after prev: EvaluableTreeNode?) throws -> EvaluableTreeNode
+
+	mutating func processArgs(_ args: [String])
+
+	func encode(to encoder: Encoder) throws
+	mutating func decode(from decoder: Decoder) throws
+
+	// func parse(state: ParsingState) throws -> EvaluableTreeNode
+	// func parse(state: ParsingState, insertAt: EvaluableTreeNode?) throws -> EvaluableTreeNode
+}
+
+public enum EvaluableCodingKeys: String, CodingKey {
+	case type = "type"
+	case children = "children"
+}
+
+extension Evaluable {
+	public var nodeType: EvaluableType { .arguments(0) }
+
+	public var argumentName: NameFunc { { "arg\($0 + 1)" } }
+
+	public func getVariable(_ name: String) -> EvaluableTreeNode? { node?.parent?.getVariable(name) }
+
+	// public func willAdd(_ node: EvaluableTreeNode) -> (toInsert: [EvaluableTreeNode], toContinue: EvaluableTreeNode?)? {
+	// 	([node], nil)
+	// }
+
+	// public func nextArg(after prev: EvaluableTreeNode?) throws -> EvaluableTreeNode {
+	// 	if case .priority(_) = self.nodeType {
+	// 		if prev == nil || node.children == nil || node.children!.isEmpty { return node }
+	// 		if prev === node.parent { return node.children!.first! }
+	// 		if prev === node.children!.last { return node.parent == nil ? node : try node.parent!.value.nextArg(after: node) }
+	// 		if let idx = node.find(prev!) { return node.children![idx + 1]}
+	// 		throw ExpressionError.advanceArgument("\(String(describing: prev!)) is no child/parent of self", at: node)
+	// 	}
+	// 	else {
+	// 		if prev == nil || node.children == nil || node.children!.isEmpty { return node }
+	// 		if prev === node.parent { return node.children!.first! }
+	// 		if prev === node.children!.last { return node }
+	// 		if let idx = node.find(prev!) { return node.children![idx + 1]}
+	// 		throw ExpressionError.advanceArgument("\(String(describing: prev!)) is no child/parent of self", at: node)
+	// 	}
+	// }
+
+	public mutating func processArgs(_ args: [String]) {}
+
+	// public func parse(state: ParsingState) throws -> EvaluableTreeNode {
+	// 	try parse(state: state, insertAt: nil)
+	// }
+
+	// public func parse(state: ParsingState, insertAt: EvaluableTreeNode?) throws -> EvaluableTreeNode {
+	// 	switch nodeType {
+	// 		case .arguments(_):
+	// 			switch state {
+	// 				case .empty(let node):
+	// 					if let newNode = node.replace(with: self) { return try newNode.value.nextArg(after: newNode.parent) }
+	// 					throw ExpressionError.invalidInsertion("Can't replace Empty Node", at: node)
+	// 				case .operation(let node), .priority(let node):
+	// 					throw ExpressionError.invalidInsertion(
+	// 						"Can't insert \(String(describing: Self.self)) here",
+	// 						at: node
+	// 					)
+	// 			}
+	// 		case .priority(_):
+	// 			switch state {
+	// 				case .empty(let node): 
+	// 					throw ExpressionError.invalidInsertion("Can't insert \(String(describing: Self.self)) here", at: node)
+	// 				default:
+	// 					if let new = insertAt?.insertParent(self)?.add(EmptyLiteral()) {
+	// 						return new
+	// 					}
+	// 					throw ExpressionError.invalidInsertion(
+	// 						"Can't insert \(String(describing: Self.self)) here. Did priority resolution fail?",
+	// 						at: insertAt
+	// 					)
+	// 			}
+	// 		case .prefixArgument(_):
+	// 			switch state {
+	// 				case .empty(let node):
+	// 					if let new = node.replace(with: self) {
+	// 						return try new.value.nextArg(after: new.parent)
+	// 					}
+	// 					throw ExpressionError.invalidInsertion("Can't replace Empty Node", at: node)
+	// 				case .operation(let node):
+	// 					if let new = node.insertParent(self) {
+	// 						if new.children != nil && !new.children!.isEmpty {
+	// 							new.children![0] = new.children!.popLast()!
+	// 							return try new.value.nextArg(after: node)
+	// 						}
+	// 						throw ExpressionError.invalidInsertion(
+	// 							"\(String(describing: Self.self)) has no children", at: new
+	// 						)
+	// 					}
+	// 					throw ExpressionError.invalidInsertion(
+	// 						"Can't insert \(String(describing: Self.self)) here", at: node
+	// 					)
+	// 				case .priority(let node):
+	// 					throw ExpressionError.invalidInsertion(
+	// 						"Can't insert \(String(describing: Self.self)) here", at: node
+	// 					)
+	// 			}
+	// 	}
+		
+	// }
+
+	public func encode(to encoder: Encoder) throws {
+		var container = encoder.container(keyedBy: EvaluableCodingKeys.self)
+		try container.encode(internalName, forKey: .type)
+		if node.children != nil {
+			try container.encode(node.children!, forKey: .children)
+		}
+	}
+
+	public mutating func decode(from decoder: Decoder) throws {
+		let container = try decoder.container(keyedBy: EvaluableCodingKeys.self)
+		let storedName = try container.decode(String.self, forKey: .type)
+		if storedName != internalName { throw ExpressionError.unknownOperation(storedName) }
+		node.children = try container.decodeIfPresent([EvaluableTreeNode].self, forKey: .children)
+	}
+}
+
+public enum ExpressionResult: Equatable {
+	case number(Double)
+	case function(Set<String>)
+
+	public var value: Double {
+		switch self {
+			case .number(let value): return value
+			case .function(_): return Double.nan
+		}
+	}
+}
+
+public enum EvaluableType: Equatable {
+	/**
+		Infix operators with variable argument count and insertion with respect to priority
+
+		arg0 <op> arg1 <op> arg2
+
+		example: 1 + 1 + 1
+	*/
+	case priority(UInt)
+	/**
+		Prefix operator with customizable argument count (0, n, any, any + 1)
+
+		<op>(arg0, arg1, arg2)
+
+		example: atan2(1, -2)
+	*/
+	case arguments(ArgumentCount)
+	/**
+		Infix operator with customizable argument count (>= 1) where first argument is in front of operator
+		ArgumentCount counts the *additional* arguments after the prefix one
+
+		arg0 <op>(arg1, arg2)
+
+		example: 2 ^ 4
+	*/
+	case prefixArgument(ArgumentCount)
+}
+
+public typealias ArgumentCount = Int
+
+extension ArgumentCount {
+	static let zeroOrMore: ArgumentCount = -1
+	static let oneOrMore: ArgumentCount = -2
+}
+
+public typealias NameFunc = (Array.Index) -> String?
