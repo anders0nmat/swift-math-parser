@@ -1,9 +1,44 @@
 import XCTest
 @testable import SwiftMathParser
 
-final class swift_math_parserTests: XCTestCase {
+final class PriorityOperations: XCTestCase {
+	func testCalcSingleOp() throws {
+
+	}
+
+	func testCalcMultipleOp() throws {
+
+	}
+
+	func testSaveMultipleOp() throws {
+
+	}
+}
+
+final class NormalOperations: XCTestCase {
+
+	func testCalcSingleOp() throws {
+
+	}
+
+	func testCalcChainedOp() throws {
+
+	}
+
+	func testSaveChainedOp() throws {
+
+	}
+
+	func testCalcPrefixOp() throws {
+
+	}
+
+	func testCalcVarargOp() throws {
+
+	}
+
 	func testSimpleFunction() throws {
-		let parser = Parser()
+		var parser = Parser()
 
 		parser.parseDebug([ "2", "+", "5", "*", "2", "*", "1.5", "+", "1", "+", "1"])
 
@@ -15,7 +50,7 @@ final class swift_math_parserTests: XCTestCase {
 	}
 
 	func testNestedFunctions() throws {
-		let parser = Parser()
+		var parser = Parser()
 
 		parser.parseDebug([ "pow", "2", "->", "abs", "-4", "+", "2", "+", "0", "->", "*", "1.5" ])
 
@@ -30,7 +65,7 @@ final class swift_math_parserTests: XCTestCase {
 	}
 
 	func testConstantValues() throws {
-		let parser = Parser()
+		var parser = Parser()
 
 		parser.parseDebug([ "2", "*", "pi" ], printCommand: true)
 
@@ -43,7 +78,7 @@ final class swift_math_parserTests: XCTestCase {
 	}
 
 	func testPrefixOperations() throws {
-		let parser = Parser()
+		var parser = Parser()
 
 		parser.parseDebug([ "5", "^", "3" ])
 
@@ -58,7 +93,7 @@ final class swift_math_parserTests: XCTestCase {
 	}
 
 	func testUserExpression() throws {
-		let parser = Parser()
+		var parser = Parser()
 
 		parser.parseDebug([BuiltinOperators.variable("x"), "+", BuiltinOperators.variable("y")])
 
@@ -75,7 +110,7 @@ final class swift_math_parserTests: XCTestCase {
 			print("UNEXPECTED ERROR: \(error)")
 		}
 
-		let parser2 = Parser()
+		var parser2 = Parser()
 
 		parser2.parseDebug([ "sum", "1", "->", "2", "->", "+", "2" ])
 
@@ -89,7 +124,7 @@ final class swift_math_parserTests: XCTestCase {
 	}
 
 	func testUserConstant() throws {
-		let parser = Parser()
+		var parser = Parser()
 		
 		parser.parseDebug(["2", "*", "pi"])
 
@@ -106,7 +141,7 @@ final class swift_math_parserTests: XCTestCase {
 			print("UNEXPECTED ERROR: \(error)")
 		}
 
-		let parser2 = Parser()
+		var parser2 = Parser()
 
 		parser2.parseDebug([ "twopi", "*", "0.5" ])
 
@@ -121,7 +156,7 @@ final class swift_math_parserTests: XCTestCase {
 	}
 
 	func testLoadFromJson() throws {
-		let parser = Parser()
+		var parser = Parser()
 
 		parser.parseDebug([ "2", "+", "4", "*", "abs", "3" ])
 
@@ -138,5 +173,23 @@ final class swift_math_parserTests: XCTestCase {
 		
 		// print(parser.root.displayName)
 		XCTAssert(try obj.evaluate().value == 14)
+	}
+}
+
+final class UserOperation: XCTestCase {
+	func testCalcUserConstant() throws {
+
+	}
+
+	func testSaveUserConstant() throws {
+
+	}
+
+	func testCalcUserExpression() throws {
+
+	}
+
+	func testSaveUserExpression() throws {
+
 	}
 }

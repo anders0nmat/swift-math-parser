@@ -10,17 +10,10 @@ public protocol Evaluable {
 	func evaluate() throws -> ExpressionResult
 	func getVariable(_ name: String) -> EvaluableTreeNode?
 
-	// func willAdd(_ node: EvaluableTreeNode) -> (toInsert: [EvaluableTreeNode], toContinue: EvaluableTreeNode?)?
-
-	// func nextArg(after prev: EvaluableTreeNode?) throws -> EvaluableTreeNode
-
 	mutating func processArgs(_ args: [String])
 
 	func encode(to encoder: Encoder) throws
 	mutating func decode(from decoder: Decoder) throws
-
-	// func parse(state: ParsingState) throws -> EvaluableTreeNode
-	// func parse(state: ParsingState, insertAt: EvaluableTreeNode?) throws -> EvaluableTreeNode
 }
 
 public enum EvaluableCodingKeys: String, CodingKey {
@@ -35,87 +28,7 @@ extension Evaluable {
 
 	public func getVariable(_ name: String) -> EvaluableTreeNode? { node?.parent?.getVariable(name) }
 
-	// public func willAdd(_ node: EvaluableTreeNode) -> (toInsert: [EvaluableTreeNode], toContinue: EvaluableTreeNode?)? {
-	// 	([node], nil)
-	// }
-
-	// public func nextArg(after prev: EvaluableTreeNode?) throws -> EvaluableTreeNode {
-	// 	if case .priority(_) = self.nodeType {
-	// 		if prev == nil || node.children == nil || node.children!.isEmpty { return node }
-	// 		if prev === node.parent { return node.children!.first! }
-	// 		if prev === node.children!.last { return node.parent == nil ? node : try node.parent!.value.nextArg(after: node) }
-	// 		if let idx = node.find(prev!) { return node.children![idx + 1]}
-	// 		throw ExpressionError.advanceArgument("\(String(describing: prev!)) is no child/parent of self", at: node)
-	// 	}
-	// 	else {
-	// 		if prev == nil || node.children == nil || node.children!.isEmpty { return node }
-	// 		if prev === node.parent { return node.children!.first! }
-	// 		if prev === node.children!.last { return node }
-	// 		if let idx = node.find(prev!) { return node.children![idx + 1]}
-	// 		throw ExpressionError.advanceArgument("\(String(describing: prev!)) is no child/parent of self", at: node)
-	// 	}
-	// }
-
 	public mutating func processArgs(_ args: [String]) {}
-
-	// public func parse(state: ParsingState) throws -> EvaluableTreeNode {
-	// 	try parse(state: state, insertAt: nil)
-	// }
-
-	// public func parse(state: ParsingState, insertAt: EvaluableTreeNode?) throws -> EvaluableTreeNode {
-	// 	switch nodeType {
-	// 		case .arguments(_):
-	// 			switch state {
-	// 				case .empty(let node):
-	// 					if let newNode = node.replace(with: self) { return try newNode.value.nextArg(after: newNode.parent) }
-	// 					throw ExpressionError.invalidInsertion("Can't replace Empty Node", at: node)
-	// 				case .operation(let node), .priority(let node):
-	// 					throw ExpressionError.invalidInsertion(
-	// 						"Can't insert \(String(describing: Self.self)) here",
-	// 						at: node
-	// 					)
-	// 			}
-	// 		case .priority(_):
-	// 			switch state {
-	// 				case .empty(let node): 
-	// 					throw ExpressionError.invalidInsertion("Can't insert \(String(describing: Self.self)) here", at: node)
-	// 				default:
-	// 					if let new = insertAt?.insertParent(self)?.add(EmptyLiteral()) {
-	// 						return new
-	// 					}
-	// 					throw ExpressionError.invalidInsertion(
-	// 						"Can't insert \(String(describing: Self.self)) here. Did priority resolution fail?",
-	// 						at: insertAt
-	// 					)
-	// 			}
-	// 		case .prefixArgument(_):
-	// 			switch state {
-	// 				case .empty(let node):
-	// 					if let new = node.replace(with: self) {
-	// 						return try new.value.nextArg(after: new.parent)
-	// 					}
-	// 					throw ExpressionError.invalidInsertion("Can't replace Empty Node", at: node)
-	// 				case .operation(let node):
-	// 					if let new = node.insertParent(self) {
-	// 						if new.children != nil && !new.children!.isEmpty {
-	// 							new.children![0] = new.children!.popLast()!
-	// 							return try new.value.nextArg(after: node)
-	// 						}
-	// 						throw ExpressionError.invalidInsertion(
-	// 							"\(String(describing: Self.self)) has no children", at: new
-	// 						)
-	// 					}
-	// 					throw ExpressionError.invalidInsertion(
-	// 						"Can't insert \(String(describing: Self.self)) here", at: node
-	// 					)
-	// 				case .priority(let node):
-	// 					throw ExpressionError.invalidInsertion(
-	// 						"Can't insert \(String(describing: Self.self)) here", at: node
-	// 					)
-	// 			}
-	// 	}
-		
-	// }
 
 	public func encode(to encoder: Encoder) throws {
 		var container = encoder.container(keyedBy: EvaluableCodingKeys.self)

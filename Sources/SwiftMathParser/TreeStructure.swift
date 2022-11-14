@@ -51,7 +51,7 @@ final public class EvaluableTreeNode: Codable {
 	internal func willAdd(_ node: EvaluableTreeNode) -> (toInsert: [EvaluableTreeNode], toContinue: EvaluableTreeNode?)? {
 		switch value.nodeType {
 			case .priority(_):
-				if type(of: node.value) == Self.self && node.value.internalName == value.internalName {
+				if type(of: node.value) == type(of: value) && node.value.internalName == value.internalName {
 					return node.children != nil ? (toInsert: node.children!, toContinue: self) : nil
 				}
 				else {
