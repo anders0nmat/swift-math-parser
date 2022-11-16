@@ -130,6 +130,15 @@ Also need infrastructure to give every evaluable a renderer function
 
 */
 
+/**
+	Parses String commands into a Math Expression Tree
+
+	New commands can be added via the global addOperator() function.
+	Some reserved commands are:
+	"->" : Jumps to the next argument
+	"+-" : Inverts the sign of the current number
+	Any Number || "." : Will be inserted as (or appended to) the current number
+*/
 public struct Parser {
 	internal var root: EvaluableTreeNode
 	internal weak var currNode: EvaluableTreeNode?
@@ -157,10 +166,30 @@ public struct Parser {
 			default: currState = .operation(currNode)
 		}
 
-		if let number = Double(token) {
-			var num = NumberLiteral(number)
-			num.processArgs(args)
-			self.currNode = try EvaluableTreeNode(value: num).parse(state: currState)
+		if Double(token) != nil || token.allSatisfy({ "0"..."9" ~= $0 || $0 == "." }) {
+			if var modifiedValue = currNode.value as? NumberLiteral, modifiedValue.addDigit(token) {
+				// Append
+				currNode.value = modifiedValue
+			}
+			else if Double(token) != nil {
+				// Create & Insert
+				var num = NumberLiteral(token)
+				num.processArgs(args)
+				self.currNode = try EvaluableTreeNode(value: num).parse(state: currState)
+			}
+			else {
+				// Malformed number e.g. "0.4.1"
+				throw ExpressionError.invalidInsertion("Malformed number \(token)", at: currNode)
+			}
+		}
+		else if token == "->" {
+			// point currNode to next argument
+			try advanceArgument()
+		}
+		else if token == "+-" && currNode.value is NumberLiteral {
+			var modifiedValue = currNode.value as! NumberLiteral
+			modifiedValue.sign = modifiedValue.sign == .minus ? .plus : .minus
+			currNode.value = modifiedValue
 		}
 		else if var op = operators[token] {
 			switch op.nodeType {
@@ -190,10 +219,6 @@ public struct Parser {
 					op.processArgs(args)
 					self.currNode = try EvaluableTreeNode(value: op).parse(state: currState)
 			}
-		}
-		else if token == "->" {
-			// point currNode to next argument
-			try advanceArgument()
 		}
 		else {
 			throw ExpressionError.unknownOperation("\(token)", args: args)

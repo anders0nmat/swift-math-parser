@@ -25,6 +25,10 @@ final class NormalOperations: XCTestCase {
 
 	}
 
+	func testCalcMixedOp() throws {
+
+	}
+
 	func testSaveChainedOp() throws {
 
 	}
@@ -34,7 +38,27 @@ final class NormalOperations: XCTestCase {
 	}
 
 	func testCalcVarargOp() throws {
+		var parser = Parser()
 
+		parser.parseDebug(["3", "cbe", "-", "2"])
+
+		let encoder = JSONEncoder()
+		let data = try! encoder.encode(parser.expression)
+		print(String(data: data, encoding: .utf8)!)
+
+		XCTAssertEqual(try parser.expression.evaluate().value, 25)
+	}
+
+	func testSplitNumber() throws {
+		var parser = Parser()
+
+		parser.parseDebug(["2", "+", "4", "6", ".", "5", "+-"])
+
+		let encoder = JSONEncoder()
+		let data = try! encoder.encode(parser.expression)
+		print(String(data: data, encoding: .utf8)!)
+
+		XCTAssertEqual(try parser.expression.evaluate().value, -44.5)
 	}
 
 	func testSimpleFunction() throws {

@@ -26,7 +26,7 @@ extension Evaluable {
 
 	public var argumentName: NameFunc { { "arg\($0 + 1)" } }
 
-	public func getVariable(_ name: String) -> EvaluableTreeNode? { node?.parent?.getVariable(name) }
+	public func getVariable(_ name: String) -> EvaluableTreeNode? { node.parent?.getVariable(name) }
 
 	public mutating func processArgs(_ args: [String]) {}
 

@@ -4,10 +4,37 @@ public struct NumberLiteral: Evaluable {
 
 	public var internalName: String { BuiltinOperators.literal }
 
-	internal var value: Double
+	public var value: Double {
+		Double("\(sign == .plus ? "+" : "-")\(valueString)\(valueString.last == "." ? "0" : "")") ?? .nan
+	}
 
-	public init(_ value: Double = 0) {
-		self.value = value
+	internal var valueString: String
+	internal var sign: FloatingPointSign
+
+	public init(_ value: Double) {
+		self.init(String(value.magnitude), sign: value.sign)
+	}
+
+	public init(_ value: String) {
+		self.init(value, sign: value.first == "-" ? .minus : .plus)
+	}
+
+	public init(_ value: String = "0", sign: FloatingPointSign) {
+		if value.first == "+" || value.first == "-" {
+			self.valueString = String(value.suffix(from: value.index(after: value.startIndex)))
+		}
+		else {
+			self.valueString = value
+		}
+		self.sign = sign
+	}
+
+	internal mutating func addDigit(_ digit: String) -> Bool {
+		if Double(valueString + digit + (digit.last == "." ? "0" : "")) != nil {
+			valueString += digit
+			return true
+		}
+		return false
 	}
 
 	public func evaluate() throws -> ExpressionResult { .number(value) }

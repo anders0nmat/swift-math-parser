@@ -3,7 +3,7 @@ final public class EvaluableTreeNode: Codable {
 	public weak var parent: EvaluableTreeNode?
 	public var children: [EvaluableTreeNode]?
 
-	public var value: Evaluable 
+	public var value: Evaluable
 
 
 		
