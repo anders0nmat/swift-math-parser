@@ -37,6 +37,13 @@ public struct NumberLiteral: Evaluable {
 		return false
 	}
 
+	public mutating func processArgs(_ args: [String]) {
+		if let num = Double(args.first ?? "") {
+			self.sign = num.sign
+			self.valueString = String(num.magnitude)
+		}
+	}
+
 	public func evaluate() throws -> ExpressionResult { .number(value) }
 
 	public func encode(to encoder: Encoder) throws {

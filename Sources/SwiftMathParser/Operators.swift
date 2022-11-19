@@ -4,6 +4,7 @@ import Foundation
 internal var operators: [String: Evaluable] = buildOperators([
 	Expression(),
 	EmptyLiteral(),
+	NumberLiteral("0", sign: .plus),
 	VariableLiteral(name: ""),
 
 	GenericPriorityOperator(internalName: "+", priority: 10, argName: { "summand\($0 + 1)" }) { $0.reduce(Double(0)) { $0 + $1 } },
