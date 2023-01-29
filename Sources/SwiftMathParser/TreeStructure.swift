@@ -46,7 +46,15 @@ final public class EvaluableTreeNode: Codable {
 
 	/* Convenience call for Evaluable */
 	public func evaluate() throws -> ExpressionResult { try value.evaluate() }
-	public func getVariable(_ name: String) -> EvaluableTreeNode? { value.getVariable(name) }
+	public func getVariable(_ name: String) -> ExpressionResult? { value.getVariable(name) }
+    public func setVariableLookup(_ lookup: @escaping (String) -> ExpressionResult?) {
+        guard self.parent == nil else { return }
+        
+        if var expr = value as? Expression {
+            expr.variableLookup = lookup
+            self.value = expr
+        }
+    }
 
 	internal func willAdd(_ node: EvaluableTreeNode) -> (toInsert: [EvaluableTreeNode], toContinue: EvaluableTreeNode?)? {
 		switch value.nodeType {

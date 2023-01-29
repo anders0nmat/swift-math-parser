@@ -217,3 +217,28 @@ final class UserOperation: XCTestCase {
 
 	}
 }
+
+final class APIOperation: XCTestCase {
+    func testExpressionVariableLookup() throws {
+        var parser = Parser()
+        
+        parser.parseDebug(["2", "+", BuiltinOperators.variable("x")])
+        
+        var x = 1
+        
+        func lookup(_ name: String) -> ExpressionResult? {
+            if name == "x" {
+                defer {x += 1}
+                return .number(Double(x))
+            }
+            return nil
+        }
+        
+        parser.expression.setVariableLookup(lookup)
+        
+        XCTAssertEqual(try parser.expression.evaluate().value, 3)
+        XCTAssertEqual(try parser.expression.evaluate().value, 4)
+        XCTAssertEqual(try parser.expression.evaluate().value, 5)
+        XCTAssertEqual(try parser.expression.evaluate().value, 6)
+    }
+}

@@ -16,7 +16,8 @@ struct UserEvaluable: Evaluable {
 
 	init(internalName: String, expr: EvaluableTreeNode, argMap: [String:Array.Index], argName: [String]) throws {
 		self.internalName = internalName
-		self.expr = expr.copy()
+        self.expr = expr.copy()
+        
 		// self.expr.parent = node // Done while evaluating
 		self.argMap = argMap
 		self._argumentName = argName
@@ -39,9 +40,9 @@ struct UserEvaluable: Evaluable {
 		return try expr.evaluate()
 	}
 
-	public func getVariable(_ name: String) -> EvaluableTreeNode? {
+	public func getVariable(_ name: String) -> ExpressionResult? {
 		if let idx = argMap[name], node.children != nil, node.children!.indices ~= idx {
-			return node.children![idx]
+            return try? node.children![idx].evaluate()
 		}
 		return node.getVariable(name)
 	}

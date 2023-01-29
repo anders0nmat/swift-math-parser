@@ -95,7 +95,7 @@ public struct VariableLiteral: Evaluable {
 
 	public func evaluate() throws -> ExpressionResult {
 		if let resultNode = node.getVariable(variableName) {
-			return try resultNode.evaluate()
+			return resultNode
 		}
 		return .function([variableName])
 	}
