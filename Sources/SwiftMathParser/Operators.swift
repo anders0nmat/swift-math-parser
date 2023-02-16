@@ -62,8 +62,8 @@ public func addOperator(_ container: EvaluableContainer) {
 }
 
 public enum BuiltinOperators {
-	static let literal = "#number"
-	static let empty = "#empty"
-	static let expression = "#expr"
-	static func variable(_ name: String?) -> String { "#var" + (name != nil ? ":\(name!)" : "") }
+	public static let literal = "#number"
+	public static let empty = "#empty"
+	public static let expression = "#expr"
+	public static func variable(_ name: String?) -> String { "#var" + (name != nil ? ":\(name!)" : "") }
 }
