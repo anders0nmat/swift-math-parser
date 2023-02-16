@@ -11,10 +11,13 @@ public struct Expression: Evaluable {
 	public var nodeType: EvaluableType { .arguments(.oneOrMore) }
     
     public func getVariable(_ name: String) -> ExpressionResult? {
-        if let externalLookup = self.variableLookup {
-            return externalLookup(name)
+        return node.parent?.getVariable(name) ?? variableLookup?(name)
+        /*if let externalLookup = self.variableLookup {
+            result = externalLookup(name)
         }
-        return node.parent?.getVariable(name)
+        let result = node.parent?.getVariable(name)
+        
+        return result*/
     }
 
 	public func evaluate() throws -> ExpressionResult {
