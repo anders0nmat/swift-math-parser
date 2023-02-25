@@ -2,23 +2,89 @@ import XCTest
 @testable import SwiftMathParser
 
 final class PriorityOperations: XCTestCase {
-	func testCalcSingleOp() throws {
 
+	func runStringSuit(_ suit: [(String, Double)]) throws {
+		for (term, result) in suit {
+			var parser = Parser()
+
+			parser.parseDebug(string: term, printCommand: false)
+
+			XCTAssertEqual(try parser.expression.evaluate().value, result, accuracy: 1e-15, "Expression: '\(term)'")
+		}
+	}
+
+	func testCalcSingleOp() throws {
+		let tests: [(String, Double)] = [
+			("2 + 5", 7),
+			("14 - 5", 9),
+			("3 * 6", 18),
+			("15 / 4", 3.75),
+
+			("1.5 - 0.5", 1),
+			("2.5 * 10", 25),
+			("8.25 + 4.25", 12.5),
+			("32.625 / -2.5", -13.05),
+
+			("-52 * 0.1", -5.2),
+			("-0 - -0", 0),
+			("-0 - 0", 0),
+			("-1 * 5", -5),
+			("-1 / 5", -0.2),
+
+			("3,5 + 1", 1), // Error for first and second part, "1" is read correctly
+			("3-5 + 1", 1), // Error for first and second part, "1" is read correctly
+		]
+
+		XCTAssertNoThrow(try runStringSuit(tests))
 	}
 
 	func testCalcMultipleOp() throws {
+		let tests: [(String, Double)] = [
+			("12 + 4 * 3", 24),
+			("2 * 1.5 * 20 + 6", 66),
+			("11.25 * 2 + 5.2 * 5 + 1.5", 50),
 
+			/*
+			("12 + 4 * 3", 24),
+			("12 + 4 * 3", 24),
+			("12 + 4 * 3", 24),
+			*/
+		]
+
+		XCTAssertNoThrow(try runStringSuit(tests))
 	}
 
 	func testSaveMultipleOp() throws {
-
+		/* Needs comparing to all possible orders of JSON :/ */	
 	}
 }
 
 final class NormalOperations: XCTestCase {
 
-	func testCalcSingleOp() throws {
+	func runStringSuit(_ suit: [(String, Double)]) throws {
+		for (term, result) in suit {
+			var parser = Parser()
 
+			parser.parseDebug(string: term, printCommand: false)
+
+			XCTAssertEqual(try parser.expression.evaluate().value, result, accuracy: 1e-15, "Expression: '\(term)'")
+		}
+	}
+
+	func testCalcSingleOp() throws {
+		let tests: [(String, Double)] = [
+			("abs 5", 5),
+			("abs 5.6", 5.6),
+			("abs -5.6", 5.6),
+			("abs -5", 5),
+
+			("sqrt 16", 4),
+
+			("sin pi", 0),
+			("cos pi", -1),
+		]
+
+		XCTAssertNoThrow(try runStringSuit(tests))
 	}
 
 	func testCalcChainedOp() throws {

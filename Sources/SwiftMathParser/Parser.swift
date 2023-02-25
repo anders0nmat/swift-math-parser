@@ -116,6 +116,10 @@ public struct Parser {
 		for cmd in commands { try parse(cmd) }
 	}
 
+	public mutating func parse(string: String, delimiter: Character = " ") throws {
+		try parse(string.split(separator: delimiter).map { String($0) })
+	}
+
 	public mutating func parseDebug(token: String, args: [String] = [], printCommand: Bool = true) {
 		do {
 			if printCommand { print(">>>", token) }
@@ -144,6 +148,10 @@ public struct Parser {
 
 	public mutating func parseDebug(_ commands: [String], printCommand: Bool = true) {
 		for cmd in commands { parseDebug(cmd, printCommand: printCommand) }
+	}
+
+	public mutating func parseDebug(string: String, printCommand: Bool = true, delimiter: Character = " ") {
+		parseDebug(string.split(separator: delimiter).map { String($0) }, printCommand: printCommand)
 	}
 }
 
