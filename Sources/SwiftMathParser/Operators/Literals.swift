@@ -87,7 +87,7 @@ public struct VariableLiteral: Evaluable {
 
 	public var internalName: String { BuiltinOperators.variable(nil) }
 
-	internal var variableName: String
+	public internal(set) var variableName: String
 
 	init(name: String) {
 		self.variableName = name

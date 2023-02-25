@@ -8,7 +8,7 @@ public struct UserConstContainer: EvaluableContainer {
 
 	public var expression: Evaluable { const }
 
-	init(internalName: String, value: Double) {
+	public init(internalName: String, value: Double) {
 		self.const = ConstLiteral(internalName: internalName, value: value)
 	}
 
@@ -35,7 +35,7 @@ public struct UserEvaluableContainer: EvaluableContainer {
 	
 	public var expression: Evaluable { expr }
 
-	init(internalName: String, expression: EvaluableTreeNode) throws {
+	public init(internalName: String, expression: EvaluableTreeNode) throws {
 		var argMap: [String:Array.Index] = [:]
 		var argName: [String] = []
 
@@ -49,14 +49,14 @@ public struct UserEvaluableContainer: EvaluableContainer {
 		try self.init(internalName: internalName, argName: argName, argMap: argMap, expression: expression)
 	}
 
-	init(internalName: String, argMap: [String:Array.Index], expression: EvaluableTreeNode) throws {
+	public init(internalName: String, argMap: [String:Array.Index], expression: EvaluableTreeNode) throws {
 		guard Set(0..<argMap.count) == Set(argMap.values) else { throw ExpressionError.missingArgument("Not all arguments are mapped") }
 
 		let argNames = argMap.reduce(into: [String](repeating: "", count: argMap.count)) { $0[$1.value] = $1.key }
 		try self.init(internalName: internalName, argName: argNames, argMap: argMap, expression: expression)
 	}
 
-	init(internalName: String, argName: [String], argMap: [String:Array.Index], expression: EvaluableTreeNode) throws {
+	public init(internalName: String, argName: [String], argMap: [String:Array.Index], expression: EvaluableTreeNode) throws {
 		self.expr = try UserEvaluable(internalName: internalName, expr: expression, argMap: argMap, argName: argName)
 	}
 

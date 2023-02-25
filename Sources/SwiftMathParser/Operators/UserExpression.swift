@@ -44,6 +44,6 @@ struct UserEvaluable: Evaluable {
 		if let idx = argMap[name], node.children != nil, node.children!.indices ~= idx {
             return try? node.children![idx].evaluate()
 		}
-		return node.getVariable(name)
+        return node.parent?.getVariable(name)
 	}
 }
